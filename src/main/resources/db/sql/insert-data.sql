@@ -1,0 +1,2 @@
+INSERT INTO course(id_course, name_course, tiet, si_so, giao_vien, phong_hoc, so_tin_chi, ghi_chu) VALUES ('INT2204 4','OOP', '5-7', '80', 'Mai Anh', 'P104', 5, 'OOP');
+INSERT INTO course(id_course, name_course, tiet, si_so, giao_vien, phong_hoc, so_tin_chi, ghi_chu) VALUES ('INT2205 4','DSA', '1-3', '85', 'Duc Anh', 'P103', 5, 'DSA');

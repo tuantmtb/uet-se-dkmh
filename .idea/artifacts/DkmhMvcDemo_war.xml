@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="DkmhMvcDemo:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="dkmh.war">
+      <element id="artifact" artifact-name="DkmhMvcDemo:war exploded" />
+    </root>
+  </artifact>
+</component>
