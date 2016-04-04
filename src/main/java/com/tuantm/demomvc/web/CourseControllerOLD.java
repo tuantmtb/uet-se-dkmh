@@ -63,7 +63,7 @@ public class CourseControllerOLD {
 	@RequestMapping(value = "/courses", method = RequestMethod.GET)
 	public String showAllcourses(Model model) {
 
-		logger.debug("showAllcourses()");
+		logger.debug("showAllCourses()");
 		model.addAttribute("courses", courseService.findAll());
 		return "courses/list";
 

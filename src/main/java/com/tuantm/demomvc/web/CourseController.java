@@ -42,21 +42,14 @@ public class CourseController {
         this.courseService = courseService;
     }
 
-//
-//    // list
-//    @RequestMapping(value = "/api/course/all", method = RequestMethod.GET)
-//    public @ResponseBody List<Course> showAllcourses() {
-//        logger.debug("API: showAllcourses()");
-//        List<Course> courses = courseService.findAll();
-//        if (courses.isEmpty()) {
-//            return null;
-//        }
-//        return courses;
-//
-//    }
+    /**
+     * Get all course
+     * GET: /api/course/all
+     * @return list<Course>
+     */
     @RequestMapping(value = "/api/course/all", method = RequestMethod.GET)
     public ResponseEntity<List<Course>> showAllcourses() {
-        logger.debug("API: showAllcourses()");
+        logger.debug("API: showAllCourses()");
         List<Course> courses = courseService.findAll();
         if (courses.isEmpty()) {
             return new ResponseEntity<List<Course>>(HttpStatus.NO_CONTENT);
@@ -65,8 +58,14 @@ public class CourseController {
 
     }
 
-    // create
-    @RequestMapping(value = "/api/create/course", method = RequestMethod.POST)
+    /**
+     * create course
+     * POST: /api/course/create
+     * @param course
+     * @param ucBuilder
+     * @return
+     */
+    @RequestMapping(value = "/api/course/create", method = RequestMethod.POST)
     public ResponseEntity<Void> createCourse(@Validated @RequestBody Course course, UriComponentsBuilder ucBuilder) {
 
         logger.debug("API createCourse() : {}", course);
@@ -84,50 +83,13 @@ public class CourseController {
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
 
-    // update
-    @RequestMapping(value = "/api/update/course/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Course> updateCourse(@PathVariable("id") Integer id, @RequestBody Course course) {
 
-        logger.debug("API updateCourse() : {}", course);
-        Course currentCourse = courseService.findById(id);
-
-        if (currentCourse == null) {
-            return new ResponseEntity<Course>(HttpStatus.NOT_FOUND);
-        }
-//        currentCourse.setTiet(course.getTiet());
-//        currentCourse.setName_course(course.getName_course());
-//        currentCourse.setPhong_hoc(course.getPhong_hoc());
-//        currentCourse.setGhi_chu(course.setName_course());
-        courseService.saveOrUpdate(course);
-        return new ResponseEntity<Course>(currentCourse, HttpStatus.OK);
-    }
-
-    // delete course
-    @RequestMapping(value = "/api/course/{id}/delete", method = RequestMethod.DELETE)
-    public ResponseEntity<Course> deleteCourse(@PathVariable("id") int id) {
-
-        logger.debug("API:deletecourse() : {}", id);
-        Course course = courseService.findById(id);
-        if (course == null) {
-            return new ResponseEntity<Course>(HttpStatus.NOT_FOUND);
-        }
-        courseService.delete(id);
-        return new ResponseEntity<Course>(HttpStatus.NO_CONTENT);
-    }
-
-    // show course
-//    @RequestMapping(value = "/api/course/{id}", method = RequestMethod.GET)
-//    public @ResponseBody Course showCourse(@PathVariable("id") int id) {
-//
-//        logger.debug("API: showcourse() id: {}", id);
-//
-//        Course course = courseService.findById(id);
-//        if (course == null) {
-//            return null;
-//        }
-//        return course;
-//    }
-    // show course
+    /**
+     * get course
+     * GET: /api/course/{id}
+     * @param id
+     * @return
+     */
     @RequestMapping(value = "/api/course/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Course> showCourse(@PathVariable("id") int id) {
 
@@ -138,6 +100,44 @@ public class CourseController {
             return new ResponseEntity<Course>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<Course>(course, HttpStatus.OK);
+    }
+
+    /**
+     * Update course
+     * PUT: /api/course/{id}/update
+     * @param id
+     * @param course
+     * @return
+     */
+    @RequestMapping(value = "/api/course/{id}/update", method = RequestMethod.PUT)
+    public ResponseEntity<Course> updateCourse(@PathVariable("id") Integer id, @RequestBody Course course) {
+
+        logger.debug("API updateCourse() : {}", course);
+        Course currentCourse = courseService.findById(id);
+
+        if (currentCourse == null) {
+            return new ResponseEntity<Course>(HttpStatus.NOT_FOUND);
+        }
+        courseService.saveOrUpdate(course);
+        return new ResponseEntity<Course>(currentCourse, HttpStatus.OK);
+    }
+
+    /**
+     * Delete course
+     * DELETE: /api/course/{id}/delete
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/api/course/{id}/delete", method = RequestMethod.DELETE)
+    public ResponseEntity<Course> deleteCourse(@PathVariable("id") int id) {
+
+        logger.debug("API:deletecourse() : {}", id);
+        Course course = courseService.findById(id);
+        if (course == null) {
+            return new ResponseEntity<Course>(HttpStatus.NOT_FOUND);
+        }
+        courseService.delete(id);
+        return new ResponseEntity<Course>(HttpStatus.NO_CONTENT);
     }
 
 }

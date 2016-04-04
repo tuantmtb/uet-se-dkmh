@@ -109,4 +109,18 @@ public class Course implements Serializable {
                 ", ghi_chu=" + ghi_chu +
                 '}';
     }
+
+    public Course() {
+    }
+
+    public Course( String id_course, String name_course, String tiet, Integer si_so, String giao_vien, String phong_hoc, Integer so_tin_chi, String ghi_chu) {
+        this.id_course = id_course;
+        this.name_course = name_course;
+        this.tiet = tiet;
+        this.si_so = si_so;
+        this.giao_vien = giao_vien;
+        this.phong_hoc = phong_hoc;
+        this.so_tin_chi = so_tin_chi;
+        this.ghi_chu = ghi_chu;
+    }
 }
