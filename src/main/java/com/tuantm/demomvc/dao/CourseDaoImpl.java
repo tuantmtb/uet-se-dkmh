@@ -78,7 +78,7 @@ public class CourseDaoImpl implements CourseDao {
     @Override
     public void update(Course course) {
 
-        String sql = "UPDATE COURSE SET ID_COURSE=:id_course, NAME_COURSE=:name_course, TIET=:tiet, SI_SO=:si_so, " + "GIAO_VIEN=:giao_vien, PHONG_HOC=:phong_hoc, SO_TIN_CHI=:so_tin_chi WHERE id=:id";
+        String sql = "UPDATE COURSE SET ID_COURSE=:id_course, NAME_COURSE=:name_course, TIET=:tiet, SI_SO=:si_so, " + "GIAO_VIEN=:giao_vien, PHONG_HOC=:phong_hoc, SO_TIN_CHI=:so_tin_chi, GHI_CHU=:ghi_chu WHERE id=:id";
 
         namedParameterJdbcTemplate.update(sql, getSqlParameterByModel(course));
 
@@ -130,6 +130,7 @@ public class CourseDaoImpl implements CourseDao {
         /**
          * Integer id;
          * String id_course;
+         * String name_course
          * String tiet;
          * Integer si_so;
          * String giao_vien;

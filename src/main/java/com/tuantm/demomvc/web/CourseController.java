@@ -1,143 +1,225 @@
 package com.tuantm.demomvc.web;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.tuantm.demomvc.model.Course;
 import com.tuantm.demomvc.service.CourseService;
 import com.tuantm.demomvc.validator.CourseFormValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 //import javax.validation.Valid;
 
 //http://www.tikalk.com/redirectattributes-new-feature-spring-mvc-31/
 //https://en.wikipedia.org/wiki/Post/Redirect/Get
 //http://www.oschina.net/translate/spring-mvc-flash-attribute-example
-@RestController
+@Controller
 public class CourseController {
 
-    private final Logger logger = LoggerFactory.getLogger(CourseController.class);
+	private final Logger logger = LoggerFactory.getLogger(CourseController.class);
 
-    @Autowired
-    CourseFormValidator courseFormValidator;
+	@Autowired
+	CourseFormValidator courseFormValidator;
 
-    @InitBinder
-    protected void initBinder(WebDataBinder binder) {
-        binder.setValidator(courseFormValidator);
-    }
+	@InitBinder
+	protected void initBinder(WebDataBinder binder) {
+		binder.setValidator(courseFormValidator);
+	}
 
-    private CourseService courseService;
+	private CourseService courseService;
 
-    @Autowired
-    public void setCourseService(CourseService courseService) {
-        this.courseService = courseService;
-    }
+	@Autowired
+	public void setCourseService(CourseService courseService) {
+		this.courseService = courseService;
+	}
 
-    /**
-     * Get all course
-     * GET: /api/course/all
-     * @return list<Course>
-     */
-    @RequestMapping(value = "/api/course/all", method = RequestMethod.GET)
-    public ResponseEntity<List<Course>> showAllcourses() {
-        logger.debug("API: showAllCourses()");
-        List<Course> courses = courseService.findAll();
-        if (courses.isEmpty()) {
-            return new ResponseEntity<List<Course>>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<List<Course>>(courses, HttpStatus.OK);
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String index(Model model) {
+		logger.debug("index()");
+		return "redirect:/courses";
+	}
 
-    }
+	// list page
+	@RequestMapping(value = "/courses", method = RequestMethod.GET)
+	public String showAllcourses(Model model) {
 
-    /**
-     * create course
-     * POST: /api/course/create
-     * @param course
-     * @param ucBuilder
-     * @return
-     */
-    @RequestMapping(value = "/api/course/create", method = RequestMethod.POST)
-    public ResponseEntity<Void> createCourse(@Validated @RequestBody Course course, UriComponentsBuilder ucBuilder) {
+		logger.debug("showAllCourses()");
+		model.addAttribute("courses", courseService.findAll());
+		return "courses/list";
 
-        logger.debug("API createCourse() : {}", course);
+	}
 
+	// save or update course
+	@RequestMapping(value = "/courses", method = RequestMethod.POST)
+	public String saveOrUpdatecourse(@ModelAttribute("courseForm") @Validated Course course,
+			BindingResult result, Model model, final RedirectAttributes redirectAttributes) {
 
-        if (!course.isNew()) {
-            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
-        }
+		logger.debug("saveOrUpdatecourse() : {}", course);
 
-        courseService.saveOrUpdate(course);
+		if (result.hasErrors()) {
+//			populateDefaultModel(model);
+			return "courses/courseform";
+		} else {
 
-        // POST/REDIRECT/GET
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/course/{id}").buildAndExpand(course.getId()).toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
-    }
+			redirectAttributes.addFlashAttribute("css", "success");
+			if(course.isNew()){
+				redirectAttributes.addFlashAttribute("msg", "Course added successfully!");
+			}else{
+				redirectAttributes.addFlashAttribute("msg", "Course updated successfully!");
+			}
 
+			courseService.saveOrUpdate(course);
 
-    /**
-     * get course
-     * GET: /api/course/{id}
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/api/course/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Course> showCourse(@PathVariable("id") int id) {
+			// POST/REDIRECT/GET
+			return "redirect:/courses/" + course.getId();
 
-        logger.debug("API: showcourse() id: {}", id);
+			// POST/FORWARD/GET
+			// return "course/list";
 
-        Course course = courseService.findById(id);
-        if (course == null) {
-            return new ResponseEntity<Course>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<Course>(course, HttpStatus.OK);
-    }
+		}
 
-    /**
-     * Update course
-     * PUT: /api/course/{id}/update
-     * @param id
-     * @param course
-     * @return
-     */
-    @RequestMapping(value = "/api/course/{id}/update", method = RequestMethod.PUT)
-    public ResponseEntity<Course> updateCourse(@PathVariable("id") Integer id, @RequestBody Course course) {
+	}
 
-        logger.debug("API updateCourse() : {}", course);
-        Course currentCourse = courseService.findById(id);
+	// show add course form
+	@RequestMapping(value = "/courses/add", method = RequestMethod.GET)
+	public String showAddcourseForm(Model model) {
 
-        if (currentCourse == null) {
-            return new ResponseEntity<Course>(HttpStatus.NOT_FOUND);
-        }
-        courseService.saveOrUpdate(course);
-        return new ResponseEntity<Course>(currentCourse, HttpStatus.OK);
-    }
+		logger.debug("showAddcourseForm()");
 
-    /**
-     * Delete course
-     * DELETE: /api/course/{id}/delete
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/api/course/{id}/delete", method = RequestMethod.DELETE)
-    public ResponseEntity<Course> deleteCourse(@PathVariable("id") int id) {
+		Course course = new Course();
 
-        logger.debug("API:deletecourse() : {}", id);
-        Course course = courseService.findById(id);
-        if (course == null) {
-            return new ResponseEntity<Course>(HttpStatus.NOT_FOUND);
-        }
-        courseService.delete(id);
-        return new ResponseEntity<Course>(HttpStatus.NO_CONTENT);
-    }
+		// set default value
+		course.setTiet("1-3");
+//		course.setId_course("");
+//		course.setTiet("");
+//		course.setSi_so();
+//		course.setGiao_vien("Phạm Ngọc Hùng");
+//		course.setSo_tin_chi(5);
+//		course.setPhong_hoc("P102");
+//		course.setGhi_chu("Đã học xong: OOP, DSA");
+		model.addAttribute("courseForm", course);
+
+//		populateDefaultModel(model);
+
+		return "courses/courseform";
+
+	}
+
+	// show update form
+	@RequestMapping(value = "/courses/{id}/update", method = RequestMethod.GET)
+	public String showUpdatecourseForm(@PathVariable("id") int id, Model model) {
+
+		logger.debug("showUpdatecourseForm() : {}", id);
+
+		Course course = courseService.findById(id);
+		model.addAttribute("courseForm", course);
+
+//		populateDefaultModel(model);
+
+		return "courses/courseform";
+
+	}
+
+	// delete course
+	@RequestMapping(value = "/courses/{id}/delete", method = RequestMethod.POST)
+	public String deletecourse(@PathVariable("id") int id, final RedirectAttributes redirectAttributes) {
+
+		logger.debug("deletecourse() : {}", id);
+
+		courseService.delete(id);
+
+		redirectAttributes.addFlashAttribute("css", "success");
+		redirectAttributes.addFlashAttribute("msg", "Course is deleted!");
+
+		return "redirect:/courses";
+
+	}
+
+	// show course
+	@RequestMapping(value = "/courses/{id}", method = RequestMethod.GET)
+	public String showcourse(@PathVariable("id") int id, Model model) {
+
+		logger.debug("showcourse() id: {}", id);
+
+		Course course = courseService.findById(id);
+		if (course == null) {
+			model.addAttribute("css", "danger");
+			model.addAttribute("msg", "Course not found");
+		}
+		model.addAttribute("course", course);
+
+		return "courses/show";
+
+	}
+
+	private void populateDefaultModel(Model model) {
+
+		List<String> frameworksList = new ArrayList<String>();
+		frameworksList.add("Spring MVC");
+		frameworksList.add("Struts 2");
+		frameworksList.add("JSF 2");
+		frameworksList.add("GWT");
+		frameworksList.add("Play");
+		frameworksList.add("Apache Wicket");
+		model.addAttribute("frameworkList", frameworksList);
+
+		Map<String, String> skill = new LinkedHashMap<String, String>();
+		skill.put("Hibernate", "Hibernate");
+		skill.put("Spring", "Spring");
+		skill.put("Struts", "Struts");
+		skill.put("Groovy", "Groovy");
+		skill.put("Grails", "Grails");
+		model.addAttribute("javaSkillList", skill);
+
+		List<Integer> numbers = new ArrayList<Integer>();
+		numbers.add(1);
+		numbers.add(2);
+		numbers.add(3);
+		numbers.add(4);
+		numbers.add(5);
+		model.addAttribute("numberList", numbers);
+
+		Map<String, String> country = new LinkedHashMap<String, String>();
+		country.put("US", "United Stated");
+		country.put("CN", "China");
+		country.put("SG", "Singapore");
+		country.put("MY", "Malaysia");
+		model.addAttribute("countryList", country);
+
+	}
+
+	@ExceptionHandler(EmptyResultDataAccessException.class)
+	public ModelAndView handleEmptyData(HttpServletRequest req, Exception ex) {
+
+		logger.debug("handleEmptyData()");
+		logger.error("Request: {}, error ", req.getRequestURL(), ex);
+
+		ModelAndView model = new ModelAndView();
+		model.setViewName("course/show");
+		model.addObject("msg", "course not found");
+
+		return model;
+
+	}
 
 }

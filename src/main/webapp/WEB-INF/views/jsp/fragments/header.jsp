@@ -1,7 +1,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ page pageEncoding="UTF-8" %>
 <head>
-    <title>Spring MVC Form Handling Example</title>
+    <title>Tạo môn học | Đăng ký môn học</title>
     <spring:url value="/resources/core/css/hello.css" var="coreCss"/>
     <spring:url value="/resources/core/css/bootstrap.min.css"
                 var="bootstrapCss"/>
@@ -15,7 +15,7 @@
 <nav class="navbar navbar-inverse ">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="${urlHome}">Kiến trúc MVC - Công nghệ phần mềm</a>
+            <a class="navbar-brand" href="${urlHome}">Hệ thống đăng ký môn học</a>
         </div>
         <div id="navbar">
             <ul class="nav navbar-nav navbar-right">

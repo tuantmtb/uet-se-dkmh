@@ -53,10 +53,10 @@ public class SpringWebConfig extends WebMvcConfigurerAdapter {
         stringConverter.setSupportedMediaTypes(Arrays.asList(new MediaType("text", "plain", UTF8)));
         converters.add(stringConverter);
     }
-//
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/api/**");
-//    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**");
+    }
 
 }
