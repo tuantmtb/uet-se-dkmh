@@ -3,7 +3,7 @@
 <div class="container">
 	<hr>
 	<footer>
-		<p>&copy; Trần Minh Tuấn</p>
+		<p>&copy; Nhóm sinh viên Công nghệ phần mềm</p>
 	</footer>
 </div>
 

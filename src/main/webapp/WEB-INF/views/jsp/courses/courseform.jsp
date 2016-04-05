@@ -50,7 +50,7 @@
 
 		<spring:bind path="tiet">
 			<div class="form-group ${status.error ? 'has-error' : ''}">
-				<label class="col-sm-2 control-label">Tên môn học</label>
+				<label class="col-sm-2 control-label">Tiết</label>
 				<div class="col-sm-10">
 					<form:input path="tiet" type="text" class="form-control " id="tiet" placeholder="Tiết" />
 					<form:errors path="tiet" class="control-label" />

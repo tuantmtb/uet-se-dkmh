@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Course implements Serializable {
-    // form:hidden - hidden value
     Integer id;
     String id_course;
     String name_course;

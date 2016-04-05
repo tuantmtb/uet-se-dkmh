@@ -17,6 +17,7 @@ import org.springframework.web.servlet.view.JstlView;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 @EnableWebMvc
 @Configuration
@@ -41,6 +42,9 @@ public class SpringWebConfig extends WebMvcConfigurerAdapter {
     @Bean
     public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource rb = new ResourceBundleMessageSource();
+
+        rb.setDefaultEncoding("UTF-8");
+
         rb.setBasenames(new String[]{"messages/messages", "messages/validation"});
         return rb;
     }

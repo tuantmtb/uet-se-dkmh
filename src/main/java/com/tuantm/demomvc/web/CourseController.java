@@ -28,198 +28,136 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-//import javax.validation.Valid;
-
-//http://www.tikalk.com/redirectattributes-new-feature-spring-mvc-31/
-//https://en.wikipedia.org/wiki/Post/Redirect/Get
-//http://www.oschina.net/translate/spring-mvc-flash-attribute-example
 @Controller
 public class CourseController {
 
-	private final Logger logger = LoggerFactory.getLogger(CourseController.class);
+    private final Logger logger = LoggerFactory.getLogger(CourseController.class);
 
-	@Autowired
-	CourseFormValidator courseFormValidator;
+    @Autowired
+    CourseFormValidator courseFormValidator;
 
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.setValidator(courseFormValidator);
-	}
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.setValidator(courseFormValidator);
+    }
 
-	private CourseService courseService;
+    private CourseService courseService;
 
-	@Autowired
-	public void setCourseService(CourseService courseService) {
-		this.courseService = courseService;
-	}
+    @Autowired
+    public void setCourseService(CourseService courseService) {
+        this.courseService = courseService;
+    }
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String index(Model model) {
-		logger.debug("index()");
-		return "redirect:/courses";
-	}
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String index(Model model) {
+        logger.debug("index()");
+        return "redirect:/courses";
+    }
 
-	// list page
-	@RequestMapping(value = "/courses", method = RequestMethod.GET)
-	public String showAllcourses(Model model) {
+    // list page
+    @RequestMapping(value = "/courses", method = RequestMethod.GET)
+    public String showAllcourses(Model model) {
 
-		logger.debug("showAllCourses()");
-		model.addAttribute("courses", courseService.findAll());
-		return "courses/list";
+        logger.debug("showAllCourses()");
+        model.addAttribute("courses", courseService.findAll());
+        return "courses/list";
 
-	}
+    }
 
-	// save or update course
-	@RequestMapping(value = "/courses", method = RequestMethod.POST)
-	public String saveOrUpdatecourse(@ModelAttribute("courseForm") @Validated Course course,
-			BindingResult result, Model model, final RedirectAttributes redirectAttributes) {
+    // save or update course
+    @RequestMapping(value = "/courses", method = RequestMethod.POST)
+    public String saveOrUpdatecourse(@ModelAttribute("courseForm") @Validated Course course,
+                                     BindingResult result, Model model, final RedirectAttributes redirectAttributes) {
 
-		logger.debug("saveOrUpdatecourse() : {}", course);
+        logger.debug("saveOrUpdatecourse() : {}", course);
 
-		if (result.hasErrors()) {
-//			populateDefaultModel(model);
-			return "courses/courseform";
-		} else {
+        if (result.hasErrors()) {
+            return "courses/courseform";
+        } else {
+            redirectAttributes.addFlashAttribute("css", "success");
+            if (course.isNew()) {
+                redirectAttributes.addFlashAttribute("msg", "Tạo môn học thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("msg", "Cập nhật môn học thành công!");
+            }
 
-			redirectAttributes.addFlashAttribute("css", "success");
-			if(course.isNew()){
-				redirectAttributes.addFlashAttribute("msg", "Course added successfully!");
-			}else{
-				redirectAttributes.addFlashAttribute("msg", "Course updated successfully!");
-			}
+            courseService.saveOrUpdate(course);
+            return "redirect:/courses/" + course.getId();
+        }
 
-			courseService.saveOrUpdate(course);
+    }
 
-			// POST/REDIRECT/GET
-			return "redirect:/courses/" + course.getId();
+    // show add course form
+    @RequestMapping(value = "/courses/add", method = RequestMethod.GET)
+    public String showAddcourseForm(Model model) {
 
-			// POST/FORWARD/GET
-			// return "course/list";
+        logger.debug("showAddcourseForm()");
 
-		}
-
-	}
-
-	// show add course form
-	@RequestMapping(value = "/courses/add", method = RequestMethod.GET)
-	public String showAddcourseForm(Model model) {
-
-		logger.debug("showAddcourseForm()");
-
-		Course course = new Course();
-
-		// set default value
-		course.setTiet("1-3");
-//		course.setId_course("");
-//		course.setTiet("");
-//		course.setSi_so();
-//		course.setGiao_vien("Phạm Ngọc Hùng");
-//		course.setSo_tin_chi(5);
-//		course.setPhong_hoc("P102");
-//		course.setGhi_chu("Đã học xong: OOP, DSA");
-		model.addAttribute("courseForm", course);
+        Course course = new Course();
+        course.setTiet("1-3");
+        model.addAttribute("courseForm", course);
 
 //		populateDefaultModel(model);
 
-		return "courses/courseform";
+        return "courses/courseform";
 
-	}
+    }
 
-	// show update form
-	@RequestMapping(value = "/courses/{id}/update", method = RequestMethod.GET)
-	public String showUpdatecourseForm(@PathVariable("id") int id, Model model) {
+    // show update form
+    @RequestMapping(value = "/courses/{id}/update", method = RequestMethod.GET)
+    public String showUpdatecourseForm(@PathVariable("id") int id, Model model) {
 
-		logger.debug("showUpdatecourseForm() : {}", id);
+        logger.debug("showUpdatecourseForm() : {}", id);
 
-		Course course = courseService.findById(id);
-		model.addAttribute("courseForm", course);
+        Course course = courseService.findById(id);
+        model.addAttribute("courseForm", course);
+        return "courses/courseform";
 
-//		populateDefaultModel(model);
+    }
 
-		return "courses/courseform";
+    // delete course
+    @RequestMapping(value = "/courses/{id}/delete", method = RequestMethod.POST)
+    public String deletecourse(@PathVariable("id") int id, final RedirectAttributes redirectAttributes) {
 
-	}
+        logger.debug("deletecourse() : {}", id);
 
-	// delete course
-	@RequestMapping(value = "/courses/{id}/delete", method = RequestMethod.POST)
-	public String deletecourse(@PathVariable("id") int id, final RedirectAttributes redirectAttributes) {
+        courseService.delete(id);
 
-		logger.debug("deletecourse() : {}", id);
+        redirectAttributes.addFlashAttribute("css", "success");
+        redirectAttributes.addFlashAttribute("msg", "Môn học đã được xóa!");
 
-		courseService.delete(id);
+        return "redirect:/courses";
 
-		redirectAttributes.addFlashAttribute("css", "success");
-		redirectAttributes.addFlashAttribute("msg", "Course is deleted!");
+    }
 
-		return "redirect:/courses";
+    // show course
+    @RequestMapping(value = "/courses/{id}", method = RequestMethod.GET)
+    public String showcourse(@PathVariable("id") int id, Model model) {
 
-	}
+        logger.debug("showcourse() id: {}", id);
 
-	// show course
-	@RequestMapping(value = "/courses/{id}", method = RequestMethod.GET)
-	public String showcourse(@PathVariable("id") int id, Model model) {
+        Course course = courseService.findById(id);
+        if (course == null) {
+            model.addAttribute("css", "danger");
+            model.addAttribute("msg", "Không tìm thấy khóa học");
+        }
+        model.addAttribute("course", course);
+        return "courses/show";
 
-		logger.debug("showcourse() id: {}", id);
+    }
 
-		Course course = courseService.findById(id);
-		if (course == null) {
-			model.addAttribute("css", "danger");
-			model.addAttribute("msg", "Course not found");
-		}
-		model.addAttribute("course", course);
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ModelAndView handleEmptyData(HttpServletRequest req, Exception ex) {
 
-		return "courses/show";
+        logger.debug("handleEmptyData()");
+        logger.error("Request: {}, error ", req.getRequestURL(), ex);
 
-	}
+        ModelAndView model = new ModelAndView();
+        model.setViewName("course/show");
+        model.addObject("msg", "Không tìm thấy khóa học");
 
-	private void populateDefaultModel(Model model) {
+        return model;
 
-		List<String> frameworksList = new ArrayList<String>();
-		frameworksList.add("Spring MVC");
-		frameworksList.add("Struts 2");
-		frameworksList.add("JSF 2");
-		frameworksList.add("GWT");
-		frameworksList.add("Play");
-		frameworksList.add("Apache Wicket");
-		model.addAttribute("frameworkList", frameworksList);
-
-		Map<String, String> skill = new LinkedHashMap<String, String>();
-		skill.put("Hibernate", "Hibernate");
-		skill.put("Spring", "Spring");
-		skill.put("Struts", "Struts");
-		skill.put("Groovy", "Groovy");
-		skill.put("Grails", "Grails");
-		model.addAttribute("javaSkillList", skill);
-
-		List<Integer> numbers = new ArrayList<Integer>();
-		numbers.add(1);
-		numbers.add(2);
-		numbers.add(3);
-		numbers.add(4);
-		numbers.add(5);
-		model.addAttribute("numberList", numbers);
-
-		Map<String, String> country = new LinkedHashMap<String, String>();
-		country.put("US", "United Stated");
-		country.put("CN", "China");
-		country.put("SG", "Singapore");
-		country.put("MY", "Malaysia");
-		model.addAttribute("countryList", country);
-
-	}
-
-	@ExceptionHandler(EmptyResultDataAccessException.class)
-	public ModelAndView handleEmptyData(HttpServletRequest req, Exception ex) {
-
-		logger.debug("handleEmptyData()");
-		logger.error("Request: {}, error ", req.getRequestURL(), ex);
-
-		ModelAndView model = new ModelAndView();
-		model.setViewName("course/show");
-		model.addObject("msg", "course not found");
-
-		return model;
-
-	}
+    }
 
 }

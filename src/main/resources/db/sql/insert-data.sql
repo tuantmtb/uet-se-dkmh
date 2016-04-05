@@ -1,2 +1,3 @@
+INSERT INTO PUBLIC.COURSE (ID, NAME_COURSE, ID_COURSE, TIET, SI_SO, GIAO_VIEN, PHONG_HOC, SO_TIN_CHI, GHI_CHU) VALUES (1, 'Lập trình nâng cao', 'INT2204 4', '3-5', 90, 'Trần Quốc Long', '304-G2', 3, 'Môn cho CLC');
 INSERT INTO course(id_course, name_course, tiet, si_so, giao_vien, phong_hoc, so_tin_chi, ghi_chu) VALUES ('INT2204 4','OOP', '5-7', '80', 'Mai Anh', 'P104', 5, 'OOP');
 INSERT INTO course(id_course, name_course, tiet, si_so, giao_vien, phong_hoc, so_tin_chi, ghi_chu) VALUES ('INT2205 4','DSA', '1-3', '85', 'Duc Anh', 'P103', 5, 'DSA');

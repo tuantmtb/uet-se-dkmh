@@ -43,13 +43,9 @@ public class CourseDaoImpl implements CourseDao {
         try {
             result = namedParameterJdbcTemplate.queryForObject(sql, params, new CourseMapper());
         } catch (EmptyResultDataAccessException e) {
-            // do nothing, return null
+
         }
 
-		/*
-         * Course result = namedParameterJdbcTemplate.queryForObject( sql, params,
-		 * new BeanPropertyRowMapper<Course>());
-		 */
         return result;
     }
 
@@ -94,8 +90,6 @@ public class CourseDaoImpl implements CourseDao {
 
     private SqlParameterSource getSqlParameterByModel(Course course) {
 
-        // Unable to handle List<String> or Array
-        // BeanPropertySqlParameterSource
 /**
  Integer id;
  String id_course;
@@ -116,13 +110,6 @@ public class CourseDaoImpl implements CourseDao {
         paramSource.addValue("phong_hoc", course.getPhong_hoc());
         paramSource.addValue("so_tin_chi", course.getSo_tin_chi());
         paramSource.addValue("ghi_chu", course.getGhi_chu());
-
-//		// join String
-//		paramSource.addValue("framework", convertListToDelimitedString(course.getFramework()));
-//		paramSource.addValue("sex", course.getSex());
-//		paramSource.addValue("number", course.getNumber());
-//		paramSource.addValue("country", course.getCountry());
-//		paramSource.addValue("skill", convertListToDelimitedString(course.getSkill()));l
         return paramSource;
     }
 
@@ -152,26 +139,4 @@ public class CourseDaoImpl implements CourseDao {
             return course;
         }
     }
-
-    private static List<String> convertDelimitedStringToList(String delimitedString) {
-
-        List<String> result = new ArrayList<String>();
-
-        if (!StringUtils.isEmpty(delimitedString)) {
-            result = Arrays.asList(StringUtils.delimitedListToStringArray(delimitedString, ","));
-        }
-        return result;
-
-    }
-
-    private String convertListToDelimitedString(List<String> list) {
-
-        String result = "";
-        if (list != null) {
-            result = StringUtils.arrayToCommaDelimitedString(list.toArray());
-        }
-        return result;
-
-    }
-
 }

@@ -17,11 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
-//import javax.validation.Valid;
-
-//http://www.tikalk.com/redirectattributes-new-feature-spring-mvc-31/
-//https://en.wikipedia.org/wiki/Post/Redirect/Get
-//http://www.oschina.net/translate/spring-mvc-flash-attribute-example
 @RestController
 public class APICourseController {
 
@@ -85,16 +80,13 @@ public class APICourseController {
      * @return
      */
     @RequestMapping(value = "/api/course/create", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<Void> createCourse(@RequestBody Course course, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<Void> createCourse(@Validated @RequestBody Course course, UriComponentsBuilder ucBuilder) {
 
         logger.debug("API createCourse() : {}", course);
-//
-//
-//        if (!course.isNew()) {
-//            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
-//        }
+        if (!course.isNew()) {
+            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+        }
 
-//        courseService.saveOrUpdate(course);
         courseService.save(course);
         // POST/REDIRECT/GET
         HttpHeaders headers = new HttpHeaders();
@@ -104,6 +96,7 @@ public class APICourseController {
 
 
     /**
+     *
      * Update course
      * POST: /api/course/{id}/update
      * @param id
